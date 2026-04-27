@@ -13,6 +13,8 @@ class _ControlsScreenState extends State<ControlsScreen> {
   final Esp32Service _esp = Esp32Service();
   bool _sendingDoor = false;
   bool _sendingBuzzer = false;
+  bool _sendingBuzzerLow = false;
+  bool _sendingBuzzerHigh = false;
   bool _sendingReset = false;
 
   @override
@@ -50,6 +52,22 @@ class _ControlsScreenState extends State<ControlsScreen> {
     if (!mounted) return;
     setState(() => _sendingBuzzer = false);
     _showSnack(ok ? 'Buzzer coupé' : 'Échec de la commande', ok);
+  }
+
+  Future<void> _setBuzzerLow() async {
+    setState(() => _sendingBuzzerLow = true);
+    final ok = await _esp.setBuzzerLow();
+    if (!mounted) return;
+    setState(() => _sendingBuzzerLow = false);
+    _showSnack(ok ? 'Buzzer BAS activé (5s)' : 'Échec de la commande', ok);
+  }
+
+  Future<void> _setBuzzerHigh() async {
+    setState(() => _sendingBuzzerHigh = true);
+    final ok = await _esp.setBuzzerHigh();
+    if (!mounted) return;
+    setState(() => _sendingBuzzerHigh = false);
+    _showSnack(ok ? 'Buzzer HAUT activé (5s)' : 'Échec de la commande', ok);
   }
 
   Future<void> _resetAlerts() async {
@@ -232,6 +250,134 @@ class _ControlsScreenState extends State<ControlsScreen> {
               loading: _sendingBuzzer,
               enabled: _esp.connected && d.buzzerOn,
               onTap: _silenceBuzzer,
+            ),
+            const SizedBox(height: 12),
+
+            // ── BUZZER TEST (BAS / HAUT) ──────────────────────
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D1B29),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF1A3048)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFB74D).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.notifications_active_rounded,
+                            color: Color(0xFFFFB74D), size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Tester le buzzer',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Text('Active le buzzer pendant 5 secondes',
+                                style: TextStyle(
+                                    color: Colors.white.withOpacity(0.5),
+                                    fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: (_sendingBuzzerLow || !_esp.connected)
+                                ? null
+                                : _setBuzzerLow,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color(0xFF4D9FFF).withOpacity(0.15),
+                              foregroundColor: const Color(0xFF4D9FFF),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(
+                                    color: Color(0xFF4D9FFF), width: 1.5),
+                              ),
+                              disabledBackgroundColor:
+                                  const Color(0xFF4D9FFF).withOpacity(0.05),
+                              disabledForegroundColor: Colors.white24,
+                            ),
+                            child: _sendingBuzzerLow
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFF4D9FFF)),
+                                  )
+                                : Text('BAS',
+                                    style: GoogleFonts.spaceGrotesk(
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 2,
+                                        fontSize: 14)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: (_sendingBuzzerHigh || !_esp.connected)
+                                ? null
+                                : _setBuzzerHigh,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color(0xFFFFB74D).withOpacity(0.15),
+                              foregroundColor: const Color(0xFFFFB74D),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: const BorderSide(
+                                    color: Color(0xFFFFB74D), width: 1.5),
+                              ),
+                              disabledBackgroundColor:
+                                  const Color(0xFFFFB74D).withOpacity(0.05),
+                              disabledForegroundColor: Colors.white24,
+                            ),
+                            child: _sendingBuzzerHigh
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFFFFB74D)),
+                                  )
+                                : Text('HAUT',
+                                    style: GoogleFonts.spaceGrotesk(
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 2,
+                                        fontSize: 14)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
 

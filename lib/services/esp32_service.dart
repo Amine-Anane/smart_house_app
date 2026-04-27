@@ -158,6 +158,8 @@ class Esp32Service extends ChangeNotifier {
   Future<bool> openDoor()      => _cmd('door/open');
   Future<bool> closeDoor()     => _cmd('door/close');
   Future<bool> silenceBuzzer() => _cmd('buzzer/off');
+  Future<bool> setBuzzerLow()  => _cmd('buzzer/low');
+  Future<bool> setBuzzerHigh() => _cmd('buzzer/high');
   Future<bool> resetAlerts()   => _cmd('reset');
 
   @override

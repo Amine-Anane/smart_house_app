@@ -156,6 +156,14 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
+  void _setBuzzerLow() async {
+    await _esp.setBuzzerLow();
+  }
+
+  void _setBuzzerHigh() async {
+    await _esp.setBuzzerHigh();
+  }
+
   @override
   Widget build(BuildContext context) {
     final d = _esp.data;
@@ -249,6 +257,8 @@ class _HomeTabState extends State<_HomeTab> {
                   history: _esp.luxHistory,
                 ),
                 _doorStatusCard(d),
+                _gasDetectionCard(d),
+                _fireDetectionCard(d),
               ],
             ),
             const SizedBox(height: 20),
@@ -257,6 +267,12 @@ class _HomeTabState extends State<_HomeTab> {
             _sectionTitle('SÉCURITÉ'),
             const SizedBox(height: 10),
             _securityList(d),
+            const SizedBox(height: 20),
+
+            // Section Buzzer
+            _sectionTitle('CONTRÔLES'),
+            const SizedBox(height: 10),
+            _buzzerControlCard(),
           ],
         ),
       ),
@@ -536,6 +552,175 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
+  Widget _gasDetectionCard(d) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: d.gasDetected
+            ? const Color(0xFFFFB74D).withOpacity(0.15)
+            : const Color(0xFF0D1B29),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: d.gasDetected
+              ? const Color(0xFFFFB74D)
+              : const Color(0xFF1A3048),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.local_gas_station,
+            color: d.gasDetected ? const Color(0xFFFFB74D) : Colors.white54,
+            size: 26,
+          ),
+          const Spacer(),
+          Text('Gaz',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 10,
+                letterSpacing: 2,
+              )),
+          const SizedBox(height: 4),
+          Text(d.gasDetected ? 'DÉTECTÉ' : 'NORMAL',
+              style: GoogleFonts.spaceGrotesk(
+                color: d.gasDetected ? const Color(0xFFFFB74D) : Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              )),
+          const SizedBox(height: 2),
+          Text(d.gasDetected ? '⚠️ Fuite détectée' : 'Aucune fuite',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 11,
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _fireDetectionCard(d) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: d.flameDetected
+            ? const Color(0xFFFF5555).withOpacity(0.15)
+            : const Color(0xFF0D1B29),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: d.flameDetected
+              ? const Color(0xFFFF5555)
+              : const Color(0xFF1A3048),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.local_fire_department,
+            color: d.flameDetected ? const Color(0xFFFF5555) : Colors.white54,
+            size: 26,
+          ),
+          const Spacer(),
+          Text('Incendie',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 10,
+                letterSpacing: 2,
+              )),
+          const SizedBox(height: 4),
+          Text(d.flameDetected ? 'DÉTECTÉ' : 'NORMAL',
+              style: GoogleFonts.spaceGrotesk(
+                color: d.flameDetected ? const Color(0xFFFF5555) : Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              )),
+          const SizedBox(height: 2),
+          Text(d.flameDetected ? '🔥 Flamme détectée' : 'Aucune flamme',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 11,
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buzzerControlCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D1B29),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF1A3048)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.notifications_active,
+                  color: Color(0xFFFFB74D), size: 24),
+              const SizedBox(width: 12),
+              Text('Buzzer',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
+                  )),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _setBuzzerLow,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4D9FFF).withOpacity(0.15),
+                    foregroundColor: const Color(0xFF4D9FFF),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Color(0xFF4D9FFF)),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('BAS',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                      )),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _setBuzzerHigh,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFB74D).withOpacity(0.15),
+                    foregroundColor: const Color(0xFFFFB74D),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Color(0xFFFFB74D)),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: Text('HAUT',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                      )),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _securityList(d) {
     return Container(
       decoration: BoxDecoration(
@@ -557,30 +742,10 @@ class _HomeTabState extends State<_HomeTab> {
           _securityRow(
             icon: Icons.mic_none_rounded,
             label: 'Son',
-            active: d.soundDetected,
-            activeText: 'Bruit fort',
-            inactiveText: 'Calme',
-            color: const Color(0xFFF1FA8C),
-          ),
-          _divider(),
-          _securityRow(
-            icon: Icons.cloud_outlined,
-            label: 'Qualité de l\'air',
-            active: d.gasDetected,
-            activeText: 'GAZ DÉTECTÉ',
+            active: d.soundLevel > 50,
+            activeText: 'Bruit',
             inactiveText: 'Normal',
-            color: const Color(0xFFFF5555),
-            critical: true,
-          ),
-          _divider(),
-          _securityRow(
-            icon: Icons.local_fire_department_outlined,
-            label: 'Flamme',
-            active: d.flameDetected,
-            activeText: 'INCENDIE',
-            inactiveText: 'Aucune',
-            color: const Color(0xFFFF5555),
-            critical: true,
+            color: const Color(0xFFF1FA8C),
           ),
         ],
       ),
